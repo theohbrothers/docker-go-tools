@@ -9,6 +9,7 @@
 # Define GOPATH and GOCACHE here. Should not need tweaking
 GOPATH := $$HOME/go
 GOCACHE := $$HOME/.cache/go-build
+GOROOT := /usr/local/go
 
 # Define the go image
 BUILD_IMAGE_NAMESPACE := golang
@@ -58,3 +59,38 @@ remove-%:
 env:
 	echo "GOPATH: $(GOPATH)"
 	echo "GOCACHE: $(GOCACHE)"
+
+# Starts a infinity Go container, and bindfs mount the container's GOROOT onto the host
+start-mount:
+	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) ID=$$( docker ps -q --filter name=$$NAME )	\
+		&& echo "Starting Go container" \
+		&& [ -z $$ID ] \
+		&& ID=$$( docker run -d --name $$NAME --restart always $(BUILD_IMAGE) bash -c 'sleep infinity' ) \
+		&& echo "$$ID" \
+		|| echo "$$ID" \
+	&& echo "Mounting container GOROOT on host $(GOROOT)" \
+		&& mount | grep $(GOROOT) && echo "container GOROOT $(GOROOT) already mounted on host $(GOROOT)" \
+		|| ( \
+			PID=$$( docker inspect --format {{.State.Pid}} $$ID ) \
+			&& [ -n $$PID ] \
+			&& echo "Mounting container GOROOT on host $(GOROOT)" \
+			&& echo "Command: sudo bindfs --map=root/$$USER /proc/$(PID)/root$(GOROOT) $(GOROOT)" \
+			&& sudo mkdir -p $(GOROOT) \
+			&& sudo bindfs --map=root/$$USER /proc/$$PID/root$(GOROOT) $(GOROOT) \
+		   )
+# Stops a infinity Go container, and unmounts the bindfs mount on the host
+stop-mount:
+	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) \
+		&& echo "Stopping Go container" \
+		&& docker rm -f $$NAME 2>/dev/null \
+		|| echo "Go container not running"
+	@echo "Unmounting host $(GOROOT)" \
+		&& sudo umount $(GOROOT) || true
+
+test:
+	@ID=$$(id -u) && echo "ID: $$ID"; \
+	zzz; \
+	echo 123; \
+	zzz; \
+	echo 1;
+	echo "ID: $$ID"
