@@ -1,9 +1,22 @@
 # VSCode Go intellisense
 
-## How to use
+## Build the dockerized tools and use them
 
-Build all dockerized go tools: `make all-build`
+1. Build the dockerized go tools
 
-Remove all dockerized go tools: `make all-remove`
+    ```sh
+    make
+    ```
 
-Add repo's `./bin` to `$PATH`
+2. Add this repo's `./bin` to `$PATH`
+
+3. Use the binaries!
+
+    ```sh
+    gopls
+    ```
+
+## Remove the dockerized go tools
+
+`make all-remove`
+
