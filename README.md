@@ -1,8 +1,14 @@
-# VSCode Go intellisense
+# docker-go-tools
+
+Dockerized go binaries.
+
+Enables completely dockerized Go development workflows:
+  - Dockerized `dlv`
+  - Dockerized `gopls`
 
 ## Build the dockerized tools and use them
 
-1. Build the dockerized go tools
+1. Build the dockerized go tools. E.g. for `gopls`, and image named `gopls` is built.
 
     ```sh
     make
