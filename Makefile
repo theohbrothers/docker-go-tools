@@ -7,9 +7,9 @@
 ##########################################################
 
 # Define GOPATH and GOCACHE here. Should not need tweaking
-GOPATH := $$HOME/go
-GOCACHE := $$HOME/.cache/go-build
 GOROOT := /usr/local/go
+GOPATH := $$PWD/.go
+GOCACHE := $$PWD/.cache/go-build
 
 # Define the go image
 BUILD_IMAGE_NAMESPACE := golang
@@ -35,13 +35,16 @@ build-%: ./build/Dockerfile
 		&& [ -n "$$IMAGE_ID" ] \
 		&& echo "$$BIN image already exists" \
 		|| ( echo "$$BIN image does not exist. Will build $$BIN image" \
-			&& docker build -t "$$BIN" --build-arg "BUILD_IMAGE=$(BUILD_IMAGE)" --build-arg "PACKAGE=$($(BIN)_PACKAGE)" -f ./build/Dockerfile ./build \
+			&& docker build -t "$$BIN" --build-arg "BUILD_IMAGE=$(BUILD_IMAGE)" --build-arg "BIN=$(BIN)" --build-arg "PACKAGE=$($(BIN)_PACKAGE)" -f ./build/Dockerfile ./build \
 		   ) \
 		&& echo "Creating bin wrapper in $$BIN_WRAPPER" \
 		&& touch $$BIN_WRAPPER \
 		&& chmod +x $$BIN_WRAPPER \
 		&& echo "#!/bin/sh" > $$BIN_WRAPPER \
-		&& echo 'docker run -i -u $$(id -u):$$(id -g) --rm -v $$PWD:$$PWD -w $$PWD -v $(GOCACHE):/.cache/go-build' $$BIN $$BIN '"$$@"' >> $$BIN_WRAPPER
+		&& echo "#!/bin/sh" > $$BIN_WRAPPER \
+		&& echo '[ ! -d $(GOPATH) ] && echo "GOPATH $(GOPATH) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
+		&& echo '[ ! -d $(GOCACHE) ] && echo "GOPATH $(GOCACHE) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
+		&& echo 'docker run -i -u $$(id -u):$$(id -g) --rm -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build' $$BIN $$BIN '"$$@"' >> $$BIN_WRAPPER
 
 list-%:
 	$(eval BIN=$*)
@@ -57,6 +60,7 @@ remove-%:
 		&& rm -rf $$BIN_WRAPPER
 
 env:
+	echo "GOROOT: $(GOROOT)"
 	echo "GOPATH: $(GOPATH)"
 	echo "GOCACHE: $(GOCACHE)"
 
