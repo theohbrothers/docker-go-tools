@@ -1,0 +1,17 @@
+#!/bin/sh
+
+echo "Your PWD is $PWD"
+docker run \
+    --rm \
+    -i \
+    --network=host \
+    -u $(id -u):$(id -g) \
+    -v "$PWD:/src" \
+    -w "/src" \
+    -v "$HOME/.cache/go-build":"/.cache/go-build" \
+    -v "$HOME/go":"/go" \
+    -v /tmp:/tmp \
+    golang:1.12 \
+    go "$@"
+
+exit $?
