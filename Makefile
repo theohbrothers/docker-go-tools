@@ -19,7 +19,7 @@ BUILD_IMAGE := $(BUILD_IMAGE_NAMESPACE):$(BUILD_IMAGE_TAG)
 # Define the go tools to build here
 ALL_BINS = dlv gopls bingo
 dlv_PACKAGE = github.com/go-delve/delve/cmd/dlv
-gopls_PACKAGE = github.com/go-delve/delve/cmd/gopls
+gopls_PACKAGE = golang.org/x/tools/cmd/gopls
 bingo_PACKAGE = github.com/saibing/bingo
 
 ##########################################################
