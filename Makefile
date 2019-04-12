@@ -73,7 +73,6 @@ start-mount:
 		|| ( \
 			PID=$$( docker inspect --format {{.State.Pid}} $$ID ) \
 			&& [ -n $$PID ] \
-			&& echo "Mounting container GOROOT on host $(GOROOT)" \
 			&& echo "Command: sudo bindfs --map=root/$$USER /proc/$(PID)/root$(GOROOT) $(GOROOT)" \
 			&& sudo mkdir -p $(GOROOT) \
 			&& sudo bindfs --map=root/$$USER /proc/$$PID/root$(GOROOT) $(GOROOT) \
