@@ -2,7 +2,7 @@
 
 Dockerized go runtime and tools.
 
-Eliminates the need for installation of Go on the dev system.
+Eliminates the need for installation of [Go](https://golang.org/doc/install) on a developer's machine.
 Enables completely dockerized Go development workflows:
   - Bind-mounted `go` runtime files on Host
   - Dockerized `go`
