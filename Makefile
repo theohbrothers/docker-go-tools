@@ -65,12 +65,6 @@ remove-%:
 		&& echo "Removing bin wrapper in $$BIN_WRAPPER" \
 		&& rm -rf $$BIN_WRAPPER
 
-env:
-	echo "GOROOT: $(GOROOT)"
-	echo "GOPATH: $(GOPATH)"
-	echo "GOCACHE: $(GOCACHE)"
-
-
 # Starts a infinity Go container, and bindfs mount the container's GOROOT onto the host
 start-go-mount:
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) ID=$$( docker ps -q --filter name=$$NAME )	\
@@ -96,3 +90,8 @@ stop-go-mount:
 		|| echo "Go container not running"
 	@echo "Unmounting host $(GOROOT)" \
 		&& sudo umount $(GOROOT) || true
+
+env:
+	echo "GOROOT: $(GOROOT)"
+	echo "GOPATH: $(GOPATH)"
+	echo "GOCACHE: $(GOCACHE)"
