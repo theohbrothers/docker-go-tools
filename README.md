@@ -49,7 +49,7 @@ You are now ready to start developing. `dlv` and other debugging tools will work
 
 ## Build a custom go tool
 
-Let's build `golint``
+Let's build `golint`
 
 1. In `Makefile`:
   - Add `golint` to `ALL_BINS` in `Makefile`. E.g. `dlv gopls bingo golint`
@@ -65,7 +65,7 @@ Let's build `golint``
 
 ### Go runtime files
 
-We create daemon `go` container, and `bindfs` its `GOROOT` (`/usr/local/go`) onto the Host at the same path (`/usr/local/go`).
+We create daemon `go` container, and `bindfs` its `GOROOT` (`/usr/local/go`) onto the Host at the same path (`/usr/local/go`). Read more [here](https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548).
 
 This allows the user to access Go runtime / native files as though it were installed on the Host.
 More importantly, it allows a local debugger (e.g. `dlv`) or go-to-definition tool (e.g. `godef`) to open the necessary Go native files.
