@@ -17,10 +17,10 @@ BUILD_IMAGE_TAG := 1.12
 BUILD_IMAGE := $(BUILD_IMAGE_NAMESPACE):$(BUILD_IMAGE_TAG)
 
 # Define the go tools to build here
-ALL_BINS = dlv gopls bingo
-dlv_PACKAGE = github.com/go-delve/delve/cmd/dlv
-gopls_PACKAGE = golang.org/x/tools/cmd/gopls
-bingo_PACKAGE = github.com/saibing/bingo
+ALL_BINS := dlv gopls bingo
+dlv_PACKAGE := github.com/go-delve/delve/cmd/dlv
+gopls_PACKAGE := golang.org/x/tools/cmd/gopls
+bingo_PACKAGE := github.com/saibing/bingo
 
 # Docker run security-opt. Required for some tools, e.g. dlv
 dlv_DOCKER_RUN_OPTIONS := --security-opt seccomp:unconfined -p 2345:2345
