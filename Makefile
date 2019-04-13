@@ -87,12 +87,12 @@ remove-%:
 # Note: Requires bindfs-1.13.10 and higher. See: https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548
 start-go-daemon: $(build-go)
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) ID=$$( docker ps -q --filter name=$$NAME )	\
-		&& echo "Starting Go container" \
+		&& echo "Starting Go daemon container" \
 		&& [ -z $$ID ] \
 		&& ID=$$( docker run -d --name $$NAME --restart always $(BUILD_IMAGE) sh -c 'sleep 999999999d' ) \
+		|| echo "Go daemon container already running" \
 		&& echo "$$ID" \
-		|| echo "$$ID" \
-	&& echo "Mounting container GOROOT on host $(GOROOT)" \
+	&& echo "Mounting Go daemon container GOROOT on host $(GOROOT)" \
 		&& mount | grep $(GOROOT) && echo "container GOROOT $(GOROOT) already mounted on host $(GOROOT)" \
 		|| ( \
 			PID=$$( docker inspect --format {{.State.Pid}} $$ID ) \
