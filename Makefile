@@ -85,11 +85,11 @@ remove-%:
 
 # Starts a infinity Go container, and bindfs mount the container's GOROOT (/proc/<PID>/root/usr/local/go) onto the Host (/usr/local/go)
 # Note: Requires bindfs-1.13.10 and higher. See: https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548
-start-go-mount:
+start-go-daemon: $(build-go)
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) ID=$$( docker ps -q --filter name=$$NAME )	\
 		&& echo "Starting Go container" \
 		&& [ -z $$ID ] \
-		&& ID=$$( docker run -d --name $$NAME --restart always $(BUILD_IMAGE) bash -c 'sleep infinity' ) \
+		&& ID=$$( docker run -d --name $$NAME --restart always $(BUILD_IMAGE) sh -c 'sleep 999999999d' ) \
 		&& echo "$$ID" \
 		|| echo "$$ID" \
 	&& echo "Mounting container GOROOT on host $(GOROOT)" \
@@ -102,7 +102,7 @@ start-go-mount:
 			&& sudo bindfs --map=root/$$USER /proc/$$PID/root$(GOROOT) $(GOROOT) \
 		   )
 # Stops a infinity Go container, and unmounts the bindfs mount (/usr/local/go) on the Host
-stop-go-mount:
+stop-go-daemon:
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) \
 		&& echo "Stopping Go container" \
 		&& docker rm -f $$NAME 2>/dev/null \
