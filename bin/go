@@ -1,3 +1,0 @@
-#!/bin/sh
-echo "Your PWD is $PWD"
-docker run --rm -i -u $(id -u):$(id -g) --network=host -v $PWD:/$PWD -w $PWD -v $HOME/.cache/go-build:/.cache/go-build -v $HOME/go:/go golang:1.12 go "$@"
