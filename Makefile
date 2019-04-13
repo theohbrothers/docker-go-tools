@@ -37,12 +37,12 @@ all-remove: $(addprefix remove-, $(ALL_BINS))
 
 build-%: ./build/Dockerfile
 	$(eval BIN=$*)
-	@BIN=$(BIN) BIN_WRAPPER=./bin/$$BIN \
-		IMAGE_ID=$$(docker images -q --filter "reference=$$BIN") \
+	@BIN_WRAPPER=./bin/$(BIN) \
+		IMAGE_ID=$$(docker images -q --filter "reference=$(BIN)") \
 		&& [ -n "$$IMAGE_ID" ] \
-		&& echo "$$BIN image already exists" \
-		|| ( echo "$$BIN image does not exist. Will build $$BIN image" \
-			&& docker build -t "$$BIN" --build-arg "BUILD_IMAGE=$(BUILD_IMAGE)" --build-arg "BIN=$(BIN)" --build-arg "PACKAGE=$($(BIN)_PACKAGE)" -f ./build/Dockerfile ./build \
+		&& echo "$(BIN) image already exists" \
+		|| ( echo "$(BIN) image does not exist. Will build $(BIN) image" \
+			&& docker build -t "$(BIN)" --build-arg "BUILD_IMAGE=$(BUILD_IMAGE)" --build-arg "BIN=$(BIN)" --build-arg "PACKAGE=$($(BIN)_PACKAGE)" -f ./build/Dockerfile ./build \
 		   ) \
 		&& echo "Creating bin wrapper in $$BIN_WRAPPER" \
 		&& touch $$BIN_WRAPPER \
@@ -50,7 +50,7 @@ build-%: ./build/Dockerfile
 		&& echo "#!/bin/sh" > $$BIN_WRAPPER \
 		&& echo '[ ! -d $(GOPATH) ] && echo "GOPATH $(GOPATH) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
 		&& echo '[ ! -d $(GOCACHE) ] && echo "GOPATH $(GOCACHE) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
-		&& echo 'docker run -i -u $$(id -u):$$(id -g) --rm $($(BIN)_DOCKER_RUN_OPTIONS) --network=host -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build' $$BIN $$BIN '"$$@"' >> $$BIN_WRAPPER
+		&& echo 'docker run -i -u $$(id -u):$$(id -g) --rm $($(BIN)_DOCKER_RUN_OPTIONS) --network=host -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build' $(BIN) $(BIN) '"$$@"' >> $$BIN_WRAPPER
 
 list-%:
 	$(eval BIN=$*)
@@ -59,9 +59,9 @@ list-%:
 
 remove-%:
 	$(eval BIN=$*)
-	@BIN=$(BIN) BIN_WRAPPER=./bin/$$BIN \
+	@BIN_WRAPPER=./bin/$(BIN) \
 		&& echo "Removing $$BIN image" \
-		&& docker rmi "$$BIN" \
+		&& docker rmi "$(BIN)" \
 		&& echo "Removing bin wrapper in $$BIN_WRAPPER" \
 		&& rm -rf $$BIN_WRAPPER
 
