@@ -46,7 +46,7 @@ Let's build `golint``
 
 ## Notes
 
-For `go`, the current user must have created and have access to `GOPATH` and `GOCACHE` as defined in `Makefile` before the wrapper will run.
+For `go`, the current user should have `rwx` access to `GOPATH` and `GOCACHE` as defined in `Makefile` before the wrapper will run.
 
 For go tools( e.g. `dlv`), the `$PWD` (current working directory) must contain `PWD_GOPATH` and `PWD_GOCACHE` as defined in the `Makefile` before the wrapper will run.
 
