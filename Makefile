@@ -62,11 +62,14 @@ build-%: ./build/Dockerfile
 		&& echo '[ ! -d $(GOPATH) ] && echo "GOPATH $(GOPATH) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
 		&& echo '[ ! -d $(GOCACHE) ] && echo "GOPATH $(GOCACHE) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
 		&& echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build' $(BIN) $(BIN) '"$$@"' >> $$BIN_WRAPPER
+
+# List a go tool's docker image
 list-%:
 	$(eval BIN=$*)
 	@echo "Looking for image of reference $(BIN)" >&2 \
 		&& docker images -q --filter "reference=$(BIN)"
 
+# Removes a go tool's docker image, and its wrapper from ./bin
 remove-%:
 	$(eval BIN=$*)
 	@BIN_WRAPPER=./bin/$(BIN) \
@@ -75,7 +78,8 @@ remove-%:
 		&& echo "Removing bin wrapper in $$BIN_WRAPPER" \
 		&& rm -rf $$BIN_WRAPPER
 
-# Starts a infinity Go container, and bindfs mount the container's GOROOT onto the host
+# Starts a infinity Go container, and bindfs mount the container's GOROOT (/proc/<PID>/root/usr/local/go) onto the Host (/usr/local/go)
+# Note: Requires bindfs-1.13.10 and higher. See: https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548
 start-go-mount:
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) ID=$$( docker ps -q --filter name=$$NAME )	\
 		&& echo "Starting Go container" \
@@ -92,7 +96,7 @@ start-go-mount:
 			&& sudo mkdir -p $(GOROOT) \
 			&& sudo bindfs --map=root/$$USER /proc/$$PID/root$(GOROOT) $(GOROOT) \
 		   )
-# Stops a infinity Go container, and unmounts the bindfs mount on the host
+# Stops a infinity Go container, and unmounts the bindfs mount (/usr/local/go) on the Host
 stop-go-mount:
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) \
 		&& echo "Stopping Go container" \
@@ -101,6 +105,7 @@ stop-go-mount:
 	@echo "Unmounting host $(GOROOT)" \
 		&& sudo umount $(GOROOT) || true
 
+# Show some make variables
 env:
 	echo "GOROOT: $(GOROOT)"
 	echo "GOPATH: $(GOPATH)"
