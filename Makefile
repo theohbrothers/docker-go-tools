@@ -97,11 +97,3 @@ stop-mount:
 		|| echo "Go container not running"
 	@echo "Unmounting host $(GOROOT)" \
 		&& sudo umount $(GOROOT) || true
-
-test:
-	@ID=$$(id -u) && echo "ID: $$ID"; \
-	zzz; \
-	echo 123; \
-	zzz; \
-	echo 1;
-	echo "ID: $$ID"
