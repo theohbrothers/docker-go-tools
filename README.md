@@ -90,4 +90,4 @@ Yes. The `bindfs` approach only works on Linux at the moment. This is because Do
 
 ## Todo
 
-Make binaries that dont require `GOPATH=$PWD/.go` and `GOCACHE=$PWD/.cache/go-build` in the `$PWD`
+Make go tools that dont require `PWD_GOPATH` and `PWD_GOCACHE` in the `$PWD`
