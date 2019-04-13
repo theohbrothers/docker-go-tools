@@ -38,6 +38,7 @@ all-remove: $(addprefix remove-, $(ALL_BINS))
 # Creates a go binary wrapper (in ./bin) that runs the docker go image
 build-go:
 	$(eval BIN=go)
+	@mkdir -p $(GOPATH) $(GOCACHE)
 	$(MAKE) wrapper BIN=go
 
 # Builds a go tool docker image tagged as $BIN, and creates the tool wrapper (in ./bin)
