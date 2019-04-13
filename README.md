@@ -80,7 +80,7 @@ For go tools( e.g. `dlv`), the `$PWD` (current working directory) must contain `
 
 ## FAQ
 
-`bindfs` of the Go daemon container's `GOROOT` does not work on Docker for Windows or Docker for Mac?
+### Q: `bindfs` of the Go daemon container's `GOROOT` does not work on Docker for Windows or Docker for Mac?
 
 Yes. The `bindfs` approach only works on Linux atm. This is because Docker for Windows/Mac both use a separate VM for the container space, and the host is unable to see the container's files. Read more details [here](https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548)
 
