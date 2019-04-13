@@ -70,8 +70,9 @@ env:
 	echo "GOPATH: $(GOPATH)"
 	echo "GOCACHE: $(GOCACHE)"
 
+
 # Starts a infinity Go container, and bindfs mount the container's GOROOT onto the host
-start-mount:
+start-go-mount:
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) ID=$$( docker ps -q --filter name=$$NAME )	\
 		&& echo "Starting Go container" \
 		&& [ -z $$ID ] \
@@ -88,13 +89,10 @@ start-mount:
 			&& sudo bindfs --map=root/$$USER /proc/$$PID/root$(GOROOT) $(GOROOT) \
 		   )
 # Stops a infinity Go container, and unmounts the bindfs mount on the host
-stop-mount:
+stop-go-mount:
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) \
 		&& echo "Stopping Go container" \
 		&& docker rm -f $$NAME 2>/dev/null \
 		|| echo "Go container not running"
 	@echo "Unmounting host $(GOROOT)" \
 		&& sudo umount $(GOROOT) || true
-
-z:
-	echo "$(dlv_DOCKER_RUN_OPTIONS)"
