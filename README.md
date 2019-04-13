@@ -36,7 +36,7 @@ Let's build `golint``
 
 1. In `Makefile`:
   - Add `golint` to `ALL_BINS` in `Makefile`. E.g. `dlv gopls bingo golint`
-  - Add `golint` package as a variable. E.g. `golint_PACKAGE := github.com/golang/lint`
+  - Add `golint` package as a variable. E.g. `golint_PACKAGE := golang.org/x/lint/golint`
 
 2. Run `make build-golint`.
 
