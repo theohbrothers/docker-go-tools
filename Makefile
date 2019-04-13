@@ -22,6 +22,10 @@ dlv_PACKAGE = github.com/go-delve/delve/cmd/dlv
 gopls_PACKAGE = golang.org/x/tools/cmd/gopls
 bingo_PACKAGE = github.com/saibing/bingo
 
+# Docker run security-opt. Required for some tools, e.g. dlv
+dlv_DOCKER_RUN_OPTIONS := --security-opt seccomp:unconfined -p 2345:2345
+dlv_PARAMS_REPLACEMENT := set -- $$( echo "$$@" | sed "s@--listen=127.0.0.1@--listen=@" )
+
 ##########################################################
 
 all-build: $(addprefix build-, $(ALL_BINS))
@@ -41,10 +45,10 @@ build-%: ./build/Dockerfile
 		&& touch $$BIN_WRAPPER \
 		&& chmod +x $$BIN_WRAPPER \
 		&& echo "#!/bin/sh" > $$BIN_WRAPPER \
-		&& echo "#!/bin/sh" > $$BIN_WRAPPER \
 		&& echo '[ ! -d $(GOPATH) ] && echo "GOPATH $(GOPATH) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
 		&& echo '[ ! -d $(GOCACHE) ] && echo "GOPATH $(GOCACHE) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
-		&& echo 'docker run -i -u $$(id -u):$$(id -g) --rm -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build' $$BIN $$BIN '"$$@"' >> $$BIN_WRAPPER
+		&& echo '$($(BIN)_PARAMS_REPLACEMENT)' >> $$BIN_WRAPPER \
+		&& echo 'docker run -i -u $$(id -u):$$(id -g) --rm $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build' $$BIN $$BIN '"$$@"' >> $$BIN_WRAPPER
 
 list-%:
 	$(eval BIN=$*)
