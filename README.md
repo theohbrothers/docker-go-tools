@@ -29,6 +29,17 @@ Enables completely dockerized Go development workflows:
     gopls
     bingo
     ```
+
+## Build a custom go tool
+
+Let's build `golint``
+
+1. In `Makefile`:
+  - Add `golint` to `ALL_BINS` in `Makefile`. E.g. `dlv gopls bingo golint`
+  - Add `golint` package as a variable. E.g. `golint_PACKAGE := github.com/golang/lint`
+
+2. Run `make build-golint`.
+
 ## Remove the dockerized go tools
 
 `make all-remove`
