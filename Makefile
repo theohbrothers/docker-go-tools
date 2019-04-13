@@ -31,10 +31,21 @@ dlv_DOCKER_RUN_OPTIONS := --security-opt seccomp:unconfined #-p $$PORT:$$PORT
 
 ##########################################################
 
-all-build: $(addprefix build-, $(ALL_BINS))
+all-build: $(addprefix build-, $(ALL_BINS)) build-go
 all-list: $(addprefix list-, $(ALL_BINS))
 all-remove: $(addprefix remove-, $(ALL_BINS))
 
+# Creates a go binary wrapper (in ./bin) that runs the docker go image
+build-go:
+	@BIN_WRAPPER=./bin/go \
+	&& echo "Generating go binary wrapper in $$BIN_WRAPPER" \
+	&& touch $$BIN_WRAPPER \
+	&& chmod +x $$BIN_WRAPPER \
+	&& echo '#!/bin/sh' > $$BIN_WRAPPER \
+	&& echo 'echo "Your PWD is $$PWD"' >> $$BIN_WRAPPER \
+	&& echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host -v $$PWD:/$$PWD -w $$PWD -v $$HOME/.cache/go-build:/.cache/go-build -v $$HOME/go:/go $(BUILD_IMAGE) go "$$@"' >> $$BIN_WRAPPER
+
+# Builds a go tool docker image tagged as $BIN, and creates its wrapper (in ./bin) that runs that docker image
 build-%: ./build/Dockerfile
 	$(eval BIN=$*)
 	@BIN_WRAPPER=./bin/$(BIN) \
@@ -47,11 +58,10 @@ build-%: ./build/Dockerfile
 		&& echo "Creating bin wrapper in $$BIN_WRAPPER" \
 		&& touch $$BIN_WRAPPER \
 		&& chmod +x $$BIN_WRAPPER \
-		&& echo "#!/bin/sh" > $$BIN_WRAPPER \
+		&& echo '#!/bin/sh' > $$BIN_WRAPPER \
 		&& echo '[ ! -d $(GOPATH) ] && echo "GOPATH $(GOPATH) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
 		&& echo '[ ! -d $(GOCACHE) ] && echo "GOPATH $(GOCACHE) not found" >&2 && exit 1' >> $$BIN_WRAPPER \
-		&& echo 'docker run -i -u $$(id -u):$$(id -g) --rm $($(BIN)_DOCKER_RUN_OPTIONS) --network=host -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build' $(BIN) $(BIN) '"$$@"' >> $$BIN_WRAPPER
-
+		&& echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build' $(BIN) $(BIN) '"$$@"' >> $$BIN_WRAPPER
 list-%:
 	$(eval BIN=$*)
 	@echo "Looking for image of reference $(BIN)" >&2 \
