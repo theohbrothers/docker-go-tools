@@ -44,7 +44,7 @@ Enables completely dockerized Go development workflows:
     bingo
     ```
 
-## 3. Build a custom go tool
+## Build a custom go tool
 
 Let's build `golint``
 
