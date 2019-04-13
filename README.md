@@ -12,9 +12,9 @@ Enables completely dockerized Go development workflows:
 
 ## How to use
 
-1. Install [`bindfs-1.13.10`](https://bindfs.org/) or higher
+1. Install [`bindfs-1.13.10`](https://bindfs.org/) or higher. Required for Step 2.
 
-2. Start a `go` daemon container, bind-mounting the go runtime files onto the host
+2. Start a `go` daemon container, `bindfs`-mounting the go runtime files onto the host. Requires `sudo` privilege.
 
     ```
     make start-go-daemon
