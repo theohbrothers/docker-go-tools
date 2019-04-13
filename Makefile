@@ -101,6 +101,7 @@ start-go-daemon: $(build-go)
 			&& sudo mkdir -p $(GOROOT) \
 			&& sudo bindfs --map=root/$$USER /proc/$$PID/root$(GOROOT) $(GOROOT) \
 		   )
+
 # Stops a infinity Go container, and unmounts the bindfs mount (/usr/local/go) on the Host
 stop-go-daemon:
 	@NAME=$(BUILD_IMAGE_NAMESPACE$)$(BUILD_IMAGE_TAG) \
@@ -112,6 +113,17 @@ stop-go-daemon:
 
 # Show some make variables
 env:
-	echo "GOROOT: $(GOROOT)"
-	echo "GOPATH: $(GOPATH)"
-	echo "GOCACHE: $(GOCACHE)"
+	@echo "GOROOT: $(GOROOT)"
+	@echo "GOPATH: $(GOPATH)"
+	@echo "GOCACHE: $(GOCACHE)"
+
+	@echo "PWD_GOPATH: $(PWD_GOPATH)"
+	@echo "PWD_GOCACHE: $(PWD_GOCACHE)"
+
+	@echo "BUILD_IMAGE_NAMESPACE: $(BUILD_IMAGE_NAMESPACE)"
+	@echo "BUILD_IMAGE_TAG: $(BUILD_IMAGE_TAG)"
+	@echo "BUILD_IMAGE: $(BUILD_IMAGE)"
+
+	@echo "ALL_BINS: $(ALL_BINS)"
+	@$(foreach BIN,$(ALL_BINS),echo "$(BIN)_PACKAGE: $($(BIN)_PACKAGE)";)
+	@$(foreach BIN,$(ALL_BINS),echo "$(BIN)_DOCKER_RUN_OPTIONS: $($(BIN)_DOCKER_RUN_OPTIONS)";)
