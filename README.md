@@ -1,14 +1,18 @@
 # docker-go-tools
 
-Dockerized go binaries.
+Dockerized go tools.
 
+Eliminates the need for installation of Go on the dev system.
 Enables completely dockerized Go development workflows:
+  - Dockerized `go`
   - Dockerized `dlv`
   - Dockerized `gopls`
+  - Dockerized `bingo`
+
 
 ## Build the dockerized tools and use them
 
-1. Build the dockerized go tools.
+1. Build the go tool wrappers and docker images
 
     ```sh
     make
@@ -29,9 +33,11 @@ Enables completely dockerized Go development workflows:
 
 `make all-remove`
 
-## Note
+## Notes
 
-Every repo must contain `GOPATH=$PWD/.go` and `GOCACHE=$PWD/.cache/go-build`, or the binary wrappers wont run.
+For `go`, the current user must have created the folders `GOPATH` and `GOCACHE` as defined in `Makefile` before the wrapper will run.
+
+For go tools( e.g. `dlv`), the `$PWD` (current working directory) must contain `PWD_GOPATH` and `PWD_GOCACHE` as defined in the `Makefile` before the wrapper will run.
 
 ## Todo
 
