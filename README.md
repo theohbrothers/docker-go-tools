@@ -86,7 +86,7 @@ You need to have at least `bindfs-1.13.10` or higher. More information [here](ht
 
 ### Q: `bindfs` of the Go daemon container's `GOROOT` does not work on Docker for Windows or Docker for Mac?
 
-Yes. The `bindfs` approach only works on Linux atm. This is because Docker for Windows/Mac both use a separate VM for the container space, and the host is unable to see the container's files. Read more details [here](https://github.com/moby/moby/issues/26872#issuecomment-249416877)
+Yes. The `bindfs` approach only works on Linux at the moment. This is because Docker for Windows/Mac both use a separate VM for the container space, and the host is unable to see the container's files. Read more details [here](https://github.com/moby/moby/issues/26872#issuecomment-249416877)
 
 ## Todo
 
