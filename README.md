@@ -9,6 +9,7 @@ Enables completely dockerized Go development workflows:
   - Dockerized `dlv`
   - Dockerized `gopls`
   - Dockerized `bingo`
+  - ... any tool you like
 
 ## How to use
 
