@@ -30,7 +30,7 @@ Enables completely dockerized Go development workflows:
 
 4. Add this repo's `./bin` to `$PATH`
 
-5. Use the binaries
+5. Binaries are now available
 
     ```sh
     go ...
@@ -43,6 +43,8 @@ Enables completely dockerized Go development workflows:
     gopls
     bingo
     ```
+
+You are now ready to start developing. `dlv` and other debugging tools will work as intended. All without cluttering the Host system.
 
 ## Build a custom go tool
 
@@ -64,7 +66,8 @@ Let's build `golint``
 
 We create daemon `go` container, and `bindfs` its `GOROOT` (`/usr/local/go`) onto the Host at the same path (`/usr/local/go`).
 
-This allows the user to access Go runtime files as though it were installed on the Host.
+This allows the user to access Go runtime / native files as though it were installed on the Host.
+More importantly, it allows a local debugger (e.g. `dlv`) or go-to-definition tool (e.g. `godef`) to open the necessary Go native files.
 
 ### Go
 
