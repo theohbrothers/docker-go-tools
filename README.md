@@ -1,28 +1,42 @@
 # docker-go-tools
 
-Dockerized go tools.
+Dockerized go runtime and tools.
 
 Eliminates the need for installation of Go on the dev system.
 Enables completely dockerized Go development workflows:
+  - Bind-mounted `go` runtime files on Host
   - Dockerized `go`
   - Dockerized `dlv`
   - Dockerized `gopls`
   - Dockerized `bingo`
 
+## How to use
 
-## Build the dockerized tools and use them
+1. Install [`bindfs-1.13.10`](https://bindfs.org/) or higher
 
-1. Build the go tool wrappers and docker images
+2. Start a `go` daemon container, bind-mounting the go runtime files onto the host
+
+    ```
+    make start-go-daemon
+    ```
+
+3. Build go tool wrappers and their docker images
 
     ```sh
     make
     ```
 
-  E.g. A docker image named `gopls` is built. A wrapper `gopls` is generated in `.bin/`
+    E.g. A docker image named `gopls` is built. A wrapper `gopls` is generated in `.bin/`
 
-2. Add this repo's `./bin` to `$PATH`
+4. Add this repo's `./bin` to `$PATH`
 
-3. Use the binaries in the scope of your repo.
+5. Use the binaries
+
+    ```sh
+    go ...
+    ```
+
+    Tools should be used in the scope of a repo
 
     ```sh
     dlv
@@ -30,7 +44,7 @@ Enables completely dockerized Go development workflows:
     bingo
     ```
 
-## Build a custom go tool
+## 3. Build a custom go tool
 
 Let's build `golint``
 
@@ -44,9 +58,19 @@ Let's build `golint``
 
 `make all-remove`
 
-## Notes
+## How it works
+
+### Go runtime files
+
+We create daemon `go` container, and `bindfs` its `GOROOT` (`/usr/local/go`) onto the Host at the same path (`/usr/local/go`).
+
+This allows the user to access Go runtime files as though it were installed on the Host.
+
+### Go
 
 For `go`, the current user should have `rwx` access to `GOPATH` and `GOCACHE` as defined in `Makefile` before the wrapper will run.
+
+### Go tools
 
 For go tools( e.g. `dlv`), the `$PWD` (current working directory) must contain `PWD_GOPATH` and `PWD_GOCACHE` as defined in the `Makefile` before the wrapper will run.
 
