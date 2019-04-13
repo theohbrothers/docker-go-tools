@@ -5,7 +5,7 @@ ARG BIN
 ARG PACKAGE
 
 RUN echo "PACKAGE: $PACKAGE" \
-    && go get -u -v "$PACKAGE" \
+    && go get -u "$PACKAGE" \
     && mv /go/bin/$BIN /usr/local/bin \
     && rm -rf "$GOCACHE" \
     && rm -rf "$GOPATH/src/*" \
