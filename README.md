@@ -78,6 +78,12 @@ For `go`, the current user should have `rwx` access to `GOPATH` and `GOCACHE` as
 
 For go tools( e.g. `dlv`), the `$PWD` (current working directory) must contain `PWD_GOPATH` and `PWD_GOCACHE` as defined in the `Makefile` before the wrapper will run.
 
+## FAQ
+
+`bindfs` of the Go daemon container's `GOROOT` does not work on Docker for Windows or Docker for Mac?
+
+Yes. The `bindfs` approach only works on Linux atm. This is because Docker for Windows/Mac both use a separate VM for the container space, and the host is unable to see the container's files. Read more details [here](https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548)
+
 ## Todo
 
 Make binaries that dont require `GOPATH=$PWD/.go` and `GOCACHE=$PWD/.cache/go-build` in the `$PWD`
