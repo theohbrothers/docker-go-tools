@@ -65,7 +65,7 @@ Let's build `golint`
 
 ### Go runtime files
 
-We create daemon `go` container, and `bindfs` its `GOROOT` (`/usr/local/go`) onto the Host at the same path (`/usr/local/go`). Read more [here](https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548).
+We create daemon `go` container, and `bindfs` its `GOROOT` (`/usr/local/go`) onto the Host at the same path (`/usr/local/go`). Read more [here](https://github.com/moby/moby/issues/26872#issuecomment-249416877).
 
 This allows the user to access Go runtime / native files as though it were installed on the Host.
 More importantly, it allows a local debugger (e.g. `dlv`) or go-to-definition tool (e.g. `godef`) to open the necessary Go native files.
@@ -80,9 +80,13 @@ For go tools( e.g. `dlv`), the `$PWD` (current working directory) must contain `
 
 ## FAQ
 
+### Q: I see no files in `/usr/bin/go`?
+
+You need to have at least `bindfs-1.13.10` or higher. More information [here](https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548)
+
 ### Q: `bindfs` of the Go daemon container's `GOROOT` does not work on Docker for Windows or Docker for Mac?
 
-Yes. The `bindfs` approach only works on Linux atm. This is because Docker for Windows/Mac both use a separate VM for the container space, and the host is unable to see the container's files. Read more details [here](https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548)
+Yes. The `bindfs` approach only works on Linux atm. This is because Docker for Windows/Mac both use a separate VM for the container space, and the host is unable to see the container's files. Read more details [here](https://github.com/moby/moby/issues/26872#issuecomment-249416877)
 
 ## Todo
 
