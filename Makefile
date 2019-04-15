@@ -5,8 +5,8 @@
 ##########################################################
 
 # Define go's GOPATH and GOCACHE. Do not edit GOROOT!
-GOPATH := $$HOME/.cache/go-build
-GOCACHE := $$HOME/go
+GOPATH := $$HOME/go
+GOCACHE := $$HOME/.cache/go-build
 GOROOT := /usr/local/go
 
 # Define go tool's GOPATH and GOCACHE here. Should not need tweaking
