@@ -52,30 +52,39 @@ build-%: ./build/Dockerfile
 		   ) \
 		&& $(MAKE) wrapper BIN=$(BIN)
 
-# Creates a binary wrapper (in ./bin) that runs the tool's docker image
+# Creates a binary wrapper (in ./bin) that runs the go / go tool's docker image
 wrapper:
 	$(eval BIN_WRAPPER=./bin/$(BIN))
 	@echo "Creating bin wrapper in $(BIN_WRAPPER)"
 	@touch $(BIN_WRAPPER) && chmod +x $(BIN_WRAPPER)
 	@echo '#!/bin/sh' > $(BIN_WRAPPER)
+	@echo 'set -e' >> $(BIN_WRAPPER)
+	@echo 'BIN=$(BIN)' >> $(BIN_WRAPPER)
+	@echo 'DOCKER_RUN_OPTIONS="$($(BIN)_DOCKER_RUN_OPTIONS)"' >> $(BIN_WRAPPER)
+
 ifeq ($(BIN),go)
 	@echo 'GOPATH=$${GOPATH:-$(GOPATH)}' >> $(BIN_WRAPPER)
 	@echo 'GOCACHE=$${GOCACHE:-$(GOCACHE)}' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $$GOPATH ] && echo "[$(BIN) wrapper] GOPATH $$GOPATH not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $$GOCACHE ] && echo "[$(BIN) wrapper] GOCACHE $$GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -w / -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $(BUILD_IMAGE) go "$$@"' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$GOPATH ] && echo "[$$BIN wrapper] GOPATH $$GOPATH not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$GOCACHE ] && echo "[$$BIN wrapper] GOCACHE $$GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo 'echo "[$$BIN wrapper] GOPATH: $$GOPATH" >&2' >> $(BIN_WRAPPER)
+	@echo 'echo "[$$BIN wrapper] GOCACHE: $$GOCACHE" >&2' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -w / -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $(BUILD_IMAGE) $$BIN "$$@"' >> $(BIN_WRAPPER)
 else
-	@echo 'WORKSPACEROOT=$$(git rev-parse --show-toplevel)' >> $(BIN_WRAPPER)
-	@echo '[ -n $$WORKSPACEROOT ] && [ ! -d $$WORKSPACEROOT ] && echo "[$(BIN) wrapper] WORKSPACEROOT $$WORKSPACEROOT not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo 'GOPATH=$${$(REPO_GOPATH):-$(GOPATH)}' >> $(BIN_WRAPPER)
-	@echo 'GOCACHE=$${$(REPO_GOCACHE):-$(GOCACHE)}' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $$GOPATH ] && echo "[$(BIN) wrapper] GOPATH $$GOPATH not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $$GOCACHE ] && echo "[$(BIN) wrapper] GOCACHE $$GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo 'WORKSPACE=$$(git rev-parse --show-toplevel)' >> $(BIN_WRAPPER)
+	@echo '[ -z $$WORKSPACE ] || [ ! -d $$WORKSPACE ] && echo "[$$BIN wrapper] WORKSPACE $$WORKSPACE not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo 'echo "[$$BIN wrapper] WORKSPACE: $$WORKSPACE" >&2' >> $(BIN_WRAPPER)
+	@echo 'GOPATH=$${GOPATH:-$(REPO_GOPATH)}' >> $(BIN_WRAPPER)
+	@echo 'GOCACHE=$${GOCACHE:-$(REPO_GOCACHE)}' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$GOPATH ] && echo "[$$BIN wrapper] GOPATH $$GOPATH not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$GOCACHE ] && echo "[$$BIN wrapper] GOCACHE $$GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo 'echo "[$$BIN wrapper] GOPATH: $$GOPATH" >&2' >> $(BIN_WRAPPER)
+	@echo 'echo "[$$BIN wrapper] GOCACHE: $$GOCACHE" >&2' >> $(BIN_WRAPPER)
 # This is a workaround the fact that vscode-go does not call dlv test with an --output in in when debugging tests
 ifeq ($(BIN),dlv)
-	@echo '[ "$$1" = 'test' ] && shift && set -- "test" "--output" "$$WORKSPACEROOT/bin/debug.test" "$$@"' >> $(BIN_WRAPPER)
+	@echo '[ "$$1" = 'test' ] && shift && set -- "test" "--output" "$$WORKSPACE/bin/debug.test" "$$@" && echo "[$$BIN wrapper] dlv args after injection: $$@" >&2' >> $(BIN_WRAPPER)
 endif
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -v $$WORKSPACEROOT:$$WORKSPACEROOT -w $$WORKSPACEROOT -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE' $(BIN) $(BIN) '"$$@"' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -v $$WORKSPACE:$$WORKSPACE -w $$PWD -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $$BIN $$BIN "$$@"' >> $(BIN_WRAPPER)
 endif
 
 # List a go tool's docker image
