@@ -10,8 +10,8 @@ GOCACHE := $$HOME/.cache/go-build
 GOROOT := /usr/local/go
 
 # Define go tool's GOPATH and GOCACHE here. Should not need tweaking
-PWD_GOPATH := $$PWD/.go
-PWD_GOCACHE := $$PWD/.cache/go-build
+# PWD_GOPATH := $$PWD/.go
+# PWD_GOCACHE := $$PWD/.cache/go-build
 
 # Define the go image
 BUILD_IMAGE_NAMESPACE := golang
@@ -27,7 +27,7 @@ gopls_PACKAGE := golang.org/x/tools/cmd/gopls
 bingo_PACKAGE := github.com/saibing/bingo
 
 # Define any go tools additional docker run options
-dlv_DOCKER_RUN_OPTIONS := --security-opt seccomp:unconfined
+dlv_DOCKER_RUN_OPTIONS := --security-opt seccomp:unconfined -e XDG_CONFIG_HOME=/tmp
 
 ##########################################################
 
@@ -58,19 +58,23 @@ wrapper:
 	@echo "Creating bin wrapper in $(BIN_WRAPPER)"
 	@touch $(BIN_WRAPPER) && chmod +x $(BIN_WRAPPER)
 	@echo '#!/bin/sh' > $(BIN_WRAPPER)
-	@echo 'echo "[$(BIN) wrapper] PWD: $$PWD"' >> $(BIN_WRAPPER)
+	#@echo 'echo "[$(BIN) wrapper] PWD: $$PWD"' >&2 >> $(BIN_WRAPPER)
+	@echo 'GOPATH=$${GOPATH:-$(GOPATH)}' >> $(BIN_WRAPPER)
+	@echo 'GOCACHE=$${GOCACHE:-$(GOCACHE)}' >> $(BIN_WRAPPER)
+	@echo 'WORKSPACEROOT=$${WORKSPACEROOT:-$$(git rev-parse --show-toplevel)}' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$GOPATH ] && echo "[$(BIN) wrapper] GOPATH $$GOPATH not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$GOCACHE ] && echo "[$(BIN) wrapper] GOCACHE $$GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$WORKSPACEROOT ] && echo "[$(BIN) wrapper] WORKSPACEROOT $$WORKSPACEROOT) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+
+# This is a workaround the fact that vscode-go does not call dlv test with an --output in in when debugging tests
+ifeq ($(BIN),dlv)
+	@echo '[ "$$1" = 'test' ] && shift && set -- "test" "--output" "$$WORKSPACEROOT/bin/debug.test" "$$@"' >> $(BIN_WRAPPER)
+endif
+
 ifeq ($(BIN),go)
-	@echo '$$MOUNT_GOPATH="-v $$PWD:/$$PWD"' >> $(BIN_WRAPPER)
-	@echo '$$MOUNT_GOCACHE="-v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build"' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $(GOPATH) ] && echo "Host GOPATH $(GOPATH) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $(GOCACHE) ] && echo "Host GOCACHE $(GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:/$$PWD -w $$PWD $$MOUNT_GOPATH $$MOUNT_GOCACHE go "$$@"' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -v $$WORKSPACEROOT:$$WORKSPACEROOT -w $$PWD -v $$GOPATH:/go -v $$GOCACHE:/.cache/go-build $(BUILD_IMAGE) go "$$@"' >> $(BIN_WRAPPER)
 else
-	@echo '$$MOUNT_GOPATH="-v $(PWD_GOPATH):/go"' >> $(BIN_WRAPPER)
-	@echo '$$MOUNT_GOCACHE="-v $(PWD_GOCACHE):/.cache/go-build"' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $(PWD_GOPATH) ] && echo "PWD_GOPATH $(PWD_GOPATH) not found" >&2 && $$MOUNT_GOPATH=' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $(PWD_GOCACHE) ] && echo "PWD_GOCACHE $(PWD_GOCACHE) not found" >&2 && $$MOUNT_GOCACHE=' >> $(BIN_WRAPPER)
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(PWD_GOPATH) -e GOCACHE=$(PWD_GOCACHE) -v $$PWD:$$PWD -w $$PWD $$MOUNT_GOPATH $$MOUNT_GOCACHE' $(BIN) $(BIN) '"$$@"' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -v $$WORKSPACEROOT:$$WORKSPACEROOT -w $$PWD -v $$GOPATH:/go -v $$GOCACHE:/.cache/go-build' $(BIN) $(BIN) '"$$@"' >> $(BIN_WRAPPER)
 endif
 
 # List a go tool's docker image
@@ -122,8 +126,8 @@ env:
 	@echo "GOPATH: $(GOPATH)"
 	@echo "GOCACHE: $(GOCACHE)"
 
-	@echo "PWD_GOPATH: $(PWD_GOPATH)"
-	@echo "PWD_GOCACHE: $(PWD_GOCACHE)"
+	# @echo "PWD_GOPATH: $(PWD_GOPATH)"
+	# @echo "PWD_GOCACHE: $(PWD_GOCACHE)"
 
 	@echo "BUILD_IMAGE_NAMESPACE: $(BUILD_IMAGE_NAMESPACE)"
 	@echo "BUILD_IMAGE_TAG: $(BUILD_IMAGE_TAG)"
