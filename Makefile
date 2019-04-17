@@ -58,14 +58,19 @@ wrapper:
 	@echo "Creating bin wrapper in $(BIN_WRAPPER)"
 	@touch $(BIN_WRAPPER) && chmod +x $(BIN_WRAPPER)
 	@echo '#!/bin/sh' > $(BIN_WRAPPER)
+	@echo 'echo "[$(BIN) wrapper] PWD: $$PWD"' >> $(BIN_WRAPPER)
 ifeq ($(BIN),go)
+	@echo '$$MOUNT_GOPATH="-v $$PWD:/$$PWD"' >> $(BIN_WRAPPER)
+	@echo '$$MOUNT_GOCACHE="-v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build"' >> $(BIN_WRAPPER)
 	@echo '[ ! -d $(GOPATH) ] && echo "Host GOPATH $(GOPATH) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
 	@echo '[ ! -d $(GOCACHE) ] && echo "Host GOCACHE $(GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:/$$PWD -w $$PWD -v $(GOPATH):/go -v $(GOCACHE):/.cache/go-build $(BUILD_IMAGE) go "$$@"' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(GOPATH) -e GOCACHE=$(GOCACHE) -v $$PWD:/$$PWD -w $$PWD $$MOUNT_GOPATH $$MOUNT_GOCACHE go "$$@"' >> $(BIN_WRAPPER)
 else
-	@echo '[ ! -d $(PWD_GOPATH) ] && echo "PWD_GOPATH $(PWD_GOPATH) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $(PWD_GOCACHE) ] && echo "PWD_GOCACHE $(PWD_GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(PWD_GOPATH) -e GOCACHE=$(PWD_GOCACHE) -v $$PWD:$$PWD -w $$PWD -v $(PWD_GOPATH):/go -v $(PWD_GOCACHE):/.cache/go-build' $(BIN) $(BIN) '"$$@"' >> $(BIN_WRAPPER)
+	@echo '$$MOUNT_GOPATH="-v $(PWD_GOPATH):/go"' >> $(BIN_WRAPPER)
+	@echo '$$MOUNT_GOCACHE="-v $(PWD_GOCACHE):/.cache/go-build"' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $(PWD_GOPATH) ] && echo "PWD_GOPATH $(PWD_GOPATH) not found" >&2 && $$MOUNT_GOPATH=' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $(PWD_GOCACHE) ] && echo "PWD_GOCACHE $(PWD_GOCACHE) not found" >&2 && $$MOUNT_GOCACHE=' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$(PWD_GOPATH) -e GOCACHE=$(PWD_GOCACHE) -v $$PWD:$$PWD -w $$PWD $$MOUNT_GOPATH $$MOUNT_GOCACHE' $(BIN) $(BIN) '"$$@"' >> $(BIN_WRAPPER)
 endif
 
 # List a go tool's docker image
