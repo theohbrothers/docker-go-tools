@@ -10,8 +10,8 @@ GOCACHE := $$HOME/.cache/go-build
 GOROOT := /usr/local/go
 
 # Define go tool's GOPATH and GOCACHE here. Should not need tweaking
-# PWD_GOPATH := $$PWD/.go
-# PWD_GOCACHE := $$PWD/.cache/go-build
+REPO_GOPATH := $$WORKSPACE/.go
+REPO_GOCACHE := $$WORKSPACE/.cache/go-build
 
 # Define the go image
 BUILD_IMAGE_NAMESPACE := golang
@@ -58,23 +58,24 @@ wrapper:
 	@echo "Creating bin wrapper in $(BIN_WRAPPER)"
 	@touch $(BIN_WRAPPER) && chmod +x $(BIN_WRAPPER)
 	@echo '#!/bin/sh' > $(BIN_WRAPPER)
-	#@echo 'echo "[$(BIN) wrapper] PWD: $$PWD"' >&2 >> $(BIN_WRAPPER)
+ifeq ($(BIN),go)
 	@echo 'GOPATH=$${GOPATH:-$(GOPATH)}' >> $(BIN_WRAPPER)
 	@echo 'GOCACHE=$${GOCACHE:-$(GOCACHE)}' >> $(BIN_WRAPPER)
-	@echo 'WORKSPACEROOT=$${WORKSPACEROOT:-$$(git rev-parse --show-toplevel)}' >> $(BIN_WRAPPER)
 	@echo '[ ! -d $$GOPATH ] && echo "[$(BIN) wrapper] GOPATH $$GOPATH not found" >&2 && exit 1' >> $(BIN_WRAPPER)
 	@echo '[ ! -d $$GOCACHE ] && echo "[$(BIN) wrapper] GOCACHE $$GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-	@echo '[ ! -d $$WORKSPACEROOT ] && echo "[$(BIN) wrapper] WORKSPACEROOT $$WORKSPACEROOT) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
-
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -w / -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $(BUILD_IMAGE) go "$$@"' >> $(BIN_WRAPPER)
+else
+	@echo 'WORKSPACEROOT=$$(git rev-parse --show-toplevel)' >> $(BIN_WRAPPER)
+	@echo '[ -n $$WORKSPACEROOT ] && [ ! -d $$WORKSPACEROOT ] && echo "[$(BIN) wrapper] WORKSPACEROOT $$WORKSPACEROOT not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo 'GOPATH=$${$(REPO_GOPATH):-$(GOPATH)}' >> $(BIN_WRAPPER)
+	@echo 'GOCACHE=$${$(REPO_GOCACHE):-$(GOCACHE)}' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$GOPATH ] && echo "[$(BIN) wrapper] GOPATH $$GOPATH not found" >&2 && exit 1' >> $(BIN_WRAPPER)
+	@echo '[ ! -d $$GOCACHE ] && echo "[$(BIN) wrapper] GOCACHE $$GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
 # This is a workaround the fact that vscode-go does not call dlv test with an --output in in when debugging tests
 ifeq ($(BIN),dlv)
 	@echo '[ "$$1" = 'test' ] && shift && set -- "test" "--output" "$$WORKSPACEROOT/bin/debug.test" "$$@"' >> $(BIN_WRAPPER)
 endif
-
-ifeq ($(BIN),go)
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -v $$WORKSPACEROOT:$$WORKSPACEROOT -w $$PWD -v $$GOPATH:/go -v $$GOCACHE:/.cache/go-build $(BUILD_IMAGE) go "$$@"' >> $(BIN_WRAPPER)
-else
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -v $$WORKSPACEROOT:$$WORKSPACEROOT -w $$PWD -v $$GOPATH:/go -v $$GOCACHE:/.cache/go-build' $(BIN) $(BIN) '"$$@"' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $($(BIN)_DOCKER_RUN_OPTIONS) -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -v $$WORKSPACEROOT:$$WORKSPACEROOT -w $$WORKSPACEROOT -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE' $(BIN) $(BIN) '"$$@"' >> $(BIN_WRAPPER)
 endif
 
 # List a go tool's docker image
@@ -126,8 +127,8 @@ env:
 	@echo "GOPATH: $(GOPATH)"
 	@echo "GOCACHE: $(GOCACHE)"
 
-	# @echo "PWD_GOPATH: $(PWD_GOPATH)"
-	# @echo "PWD_GOCACHE: $(PWD_GOCACHE)"
+	# @echo "REPO_GOPATH: $(REPO_GOPATH)"
+	# @echo "REPO_GOCACHE: $(REPO_GOCACHE)"
 
 	@echo "BUILD_IMAGE_NAMESPACE: $(BUILD_IMAGE_NAMESPACE)"
 	@echo "BUILD_IMAGE_TAG: $(BUILD_IMAGE_TAG)"
