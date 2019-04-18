@@ -69,7 +69,7 @@ ifeq ($(BIN),go)
 	@echo '[ ! -d $$GOCACHE ] && echo "[$$BIN wrapper] GOCACHE $$GOCACHE) not found" >&2 && exit 1' >> $(BIN_WRAPPER)
 	@echo 'echo "[$$BIN wrapper] GOPATH: $$GOPATH" >&2' >> $(BIN_WRAPPER)
 	@echo 'echo "[$$BIN wrapper] GOCACHE: $$GOCACHE" >&2' >> $(BIN_WRAPPER)
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -w / -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $(BUILD_IMAGE) $$BIN "$$@"' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -v $$PWD:$$PWD -w $$PWD -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $(BUILD_IMAGE) $$BIN "$$@"' >> $(BIN_WRAPPER)
 else
 	@echo 'WORKSPACE=$$(git rev-parse --show-toplevel)' >> $(BIN_WRAPPER)
 	@echo '[ -z $$WORKSPACE ] || [ ! -d $$WORKSPACE ] && echo "[$$BIN wrapper] WORKSPACE $$WORKSPACE not found" >&2 && exit 1' >> $(BIN_WRAPPER)
