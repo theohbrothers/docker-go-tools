@@ -101,8 +101,8 @@ remove-%:
 	@BIN_WRAPPER=./bin/$(BIN) \
 		&& echo "Removing $$BIN image" \
 		&& docker rmi "$(BIN)" \
-		&& echo "Removing bin wrapper in $(BIN_WRAPPER)" \
-		&& rm -rf $(BIN_WRAPPER)
+		&& echo "Removing bin wrapper in $BIN_WRAPPER" \
+		&& rm -rf $$BIN_WRAPPER
 
 # Starts a infinity Go container, and bindfs mount the container's GOROOT (/proc/<DOCKER_PID>/root/usr/local/go) onto the Host (/usr/local/go)
 # Note: Requires bindfs-1.13.10 and higher. See: https://github.com/mpartel/bindfs/issues/66#issuecomment-428323548
