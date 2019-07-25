@@ -82,10 +82,10 @@ else
 	@echo 'echo "[$$BIN wrapper] GOPATH: $$GOPATH" >&2' >> $(BIN_WRAPPER)
 	@echo 'echo "[$$BIN wrapper] GOCACHE: $$GOCACHE" >&2' >> $(BIN_WRAPPER)
 	@echo 'echo "[$$BIN wrapper] GOFLAGS: $$GOFLAGS" >&2' >> $(BIN_WRAPPER)
-# This is a workaround the fact that vscode-go does not call dlv test with an --output in in when debugging tests
-ifeq ($(BIN),dlv)
-	@echo '[ "$$1" = 'test' ] && shift && set -- "test" "--output" "$$WORKSPACE/bin/debug.test" "$$@" && echo "[$$BIN wrapper] dlv args after injection: $$@" >&2' >> $(BIN_WRAPPER)
-endif
+# (Deprecated. Fixed in vscode/go 0.11.1) This is a workaround the fact that vscode-go does not call dlv test with an --output in in when debugging tests.
+# ifeq ($(BIN),dlv)
+	# @echo '[ "$$1" = 'test' ] && shift && set -- "test" "--output" "$$WORKSPACE/bin/debug.test" "$$@" && echo "[$$BIN wrapper] dlv args after injection: $$@" >&2' >> $(BIN_WRAPPER)
+# endif
 	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -e GOFLAGS=$$GOFLAGS -v $$WORKSPACE:$$WORKSPACE -w $$PWD -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $$BIN $$BIN "$$@"' >> $(BIN_WRAPPER)
 endif
 
