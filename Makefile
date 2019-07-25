@@ -70,7 +70,7 @@ ifeq ($(BIN),go)
 	@echo 'echo "[$$BIN wrapper] GOPATH: $$GOPATH" >&2' >> $(BIN_WRAPPER)
 	@echo 'echo "[$$BIN wrapper] GOCACHE: $$GOCACHE" >&2' >> $(BIN_WRAPPER)
 	@echo 'echo "[$$BIN wrapper] GOFLAGS: $$GOFLAGS" >&2' >> $(BIN_WRAPPER)
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -e GOFLAGS=$$GOFLAGS -v $$PWD:$$PWD -w $$PWD -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $(BUILD_IMAGE) $$BIN "$$@"' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e "GOPATH=$$GOPATH" -e "GOCACHE=$$GOCACHE" -e "GOFLAGS=$$GOFLAGS" -v "$$PWD:$$PWD" -w "$$PWD" -v "$$GOPATH:$$GOPATH" -v "$$GOCACHE:$$GOCACHE" $(BUILD_IMAGE) "$$BIN" "$$@"' >> $(BIN_WRAPPER)
 else
 	@echo 'WORKSPACE=$$(git rev-parse --show-toplevel)' >> $(BIN_WRAPPER)
 	@echo '[ -z $$WORKSPACE ] || [ ! -d $$WORKSPACE ] && echo "[$$BIN wrapper] WORKSPACE $$WORKSPACE not found" >&2 && exit 1' >> $(BIN_WRAPPER)
@@ -86,7 +86,7 @@ else
 # ifeq ($(BIN),dlv)
 	# @echo '[ "$$1" = 'test' ] && shift && set -- "test" "--output" "$$WORKSPACE/bin/debug.test" "$$@" && echo "[$$BIN wrapper] dlv args after injection: $$@" >&2' >> $(BIN_WRAPPER)
 # endif
-	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e GOPATH=$$GOPATH -e GOCACHE=$$GOCACHE -e GOFLAGS=$$GOFLAGS -v $$WORKSPACE:$$WORKSPACE -w $$PWD -v $$GOPATH:$$GOPATH -v $$GOCACHE:$$GOCACHE $$BIN $$BIN "$$@"' >> $(BIN_WRAPPER)
+	@echo 'docker run --rm -i -u $$(id -u):$$(id -g) --network=host $$DOCKER_RUN_OPTIONS -e "GOPATH=$$GOPATH" -e "GOCACHE=$$GOCACHE" -e "GOFLAGS=$$GOFLAGS" -v "$$WORKSPACE:$$WORKSPACE" -w "$$PWD" -v "$$GOPATH:$$GOPATH" -v "$$GOCACHE:$$GOCACHE" "$$BIN" "$$BIN" "$$@"' >> $(BIN_WRAPPER)
 endif
 
 # List a go tool's docker image
