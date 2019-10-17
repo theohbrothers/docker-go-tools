@@ -1,28 +1,30 @@
 # docker-go-tools
 
-Dockerized go runtime and tools.
+A dockerized workflow that decouples the [go](https://golang.org/doc/install) runtime and tools from the developer's OS.
 
-Eliminates the need for installation of [Go](https://golang.org/doc/install) on a developer's machine.
 Enables completely dockerized Go development workflows:
-  - Bind-mounted `go` runtime files on Host
-  - Dockerized `go`
-  - Dockerized go debug tools (E.g. `dlv`, `gopls`, `bingo`)
-  - Standalone `<any go tool you like>`
 
-## How to use
+- Bind-mounted `go` runtime files on Host
+- Dockerized `go`
+- Dockerized go debug tools (E.g. `dlv`, `gopls`, `bingo`)
+- Standalone `<any go tool you like>`
+
+With this, a developer machine becomes ephemeral, containing no development state.
+
+## How to
 
 1. Install [`bindfs-1.13.10`](https://bindfs.org/) or higher. Required for Step 2.
 
 2. Start a `go` daemon container, `bindfs`-mounting the go runtime files onto the host. Requires `sudo` privilege.
 
-    ```
-    $ make start-go-daemon
+    ```sh
+    make start-go-daemon
     ```
 
 3. Build go and go tool wrappers and their docker images
 
     ```sh
-    $ make
+    make
     ```
 
     E.g. A docker image named `gopls` is built. A wrapper `gopls` is generated in `.bin/`
@@ -58,15 +60,16 @@ Enables completely dockerized Go development workflows:
     Hello World
     ```
 
-You are now ready to start developing. `go`, go tool wrappers (`dlv`, `gopls`, `bingo` etc), and standalone go tools will work as intended. All without cluttering the Host system.
+    You are now ready to start developing. `go`, go tool wrappers (`dlv`, `gopls`, `bingo` etc), and standalone go tools will work as intended. All without dependency on the Host system.
 
-## Build more dockerized go wrappers
+## Build more dockerized go tools
 
 Let's build a dockerized `golint`
 
 1. In `Makefile`:
-  - Add `golint` to `ALL_BINS` in `Makefile`. E.g. `dlv gopls bingo golint`
-  - Add `golint` package as a variable. E.g. `golint_PACKAGE := golang.org/x/lint/golint`
+
+    - Add `golint` to `ALL_BINS` in `Makefile`. E.g. `dlv gopls bingo golint`
+    - Add `golint` package as a variable. E.g. `golint_PACKAGE := golang.org/x/lint/golint`
 
 2. Run `make`.
 
