@@ -91,11 +91,11 @@ More importantly, it allows a local debugger (e.g. `dlv`) or go-to-definition to
 
 When called outside of the folder of a git repository, the `GOPATH` is `$HOME/go`, and `GOCACHE` is `$HOME/.cache/go-build`, as defined in Makefile.
 
-When called within the folder of a git repository, the `GOPATH` and `GOCACHE` are `/path/to/repo/.go` and `/path/to/repo/.go/.cache/go-build/`, as defined in the Makefile. Your workspace environment *may* want to define these variables to override the wrapper's defaults just to be sure they are set correctly.
+When called within the folder of a git repository, the `GOPATH` and `GOCACHE` are `/path/to/repo/.go` and `/path/to/repo/.go/.cache/go-build`, as defined in the Makefile. Your workspace environment *may* want to define these variables to override the wrapper's defaults just to be sure they are set correctly.
 
 ### 3. Go tools wrappers
 
-These must be used in the folder of a git repository. The `GOPATH` and `GOCACHE` are `/path/to/repo/.go` and `/path/to/repo/.go/.cache/go-build/`.
+These must be used in the folder of a git repository. The `GOPATH` and `GOCACHE` are `/path/to/repo/.go` and `/path/to/repo/.go/.cache/go-build`.
 
 ### 4. Standalone Go tools
 
