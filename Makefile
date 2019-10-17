@@ -11,7 +11,7 @@ GOROOT := /usr/local/go
 
 # Define go tool's GOPATH and GOCACHE here. Should not need tweaking
 REPO_GOPATH := $$WORKSPACE/.go
-REPO_GOCACHE := $$WORKSPACE/.cache/go-build
+REPO_GOCACHE := $$WORKSPACE/.go/.cache/go-build
 
 # Define the go image
 BUILD_IMAGE_NAMESPACE := golang
