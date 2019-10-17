@@ -23,7 +23,7 @@ ALL_BINS := dlv gopls bingo
 
 # Define the go tools package, in format <BIN>_PACKAGE
 dlv_PACKAGE := github.com/go-delve/delve/cmd/dlv
-gopls_PACKAGE := golang.org/x/tools/cmd/gopls
+gopls_PACKAGE := golang.org/x/tools/gopls
 bingo_PACKAGE := github.com/saibing/bingo
 
 # Define any go tools additional docker run options
