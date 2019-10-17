@@ -9,7 +9,7 @@ Enables completely dockerized Go development workflows:
 - Dockerized go debug tools (E.g. `dlv`, `gopls`, `bingo`)
 - Standalone `<any go tool you like>`
 
-With this, a developer machine becomes ephemeral, containing no development state.
+With this, a developer machine becomes ephemeral, containing no development state. Also, a developer only needs to change one variable, to switch to a different `go` runtime version.
 
 ## How to
 
