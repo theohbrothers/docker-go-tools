@@ -31,7 +31,7 @@ With this, a developer machine becomes ephemeral, containing no development stat
 
 4. Add this repo's `./bin` to `$PATH`.
 
-    `go` is now available
+    `go` wrapper is now available
 
     ```sh
     $ which go
@@ -39,20 +39,21 @@ With this, a developer machine becomes ephemeral, containing no development stat
     $ go
     ```
 
-    go tools should be used in the scope of a repo
+    Dockerized go tool wrappers should be used in the scope of a repo
 
     ```sh
-    $ which go
+    $ which dlv
     /path/to/docker-go-tools/bin/dlv
+    # Ensure we are in the scope of a git repo
     $ cd /path/to/your/repo
     $ dlv
-    $ gopls
-    $ bingo
     ```
 
 5. Get standalone (non-dockerized) go tools
 
     ```sh
+    # Ensure we are not in the scope of a git repo
+    cd ~
     $ go get github.com/golangbot/hello
     $ which hello
     /home/user/go/bin/hello
@@ -62,7 +63,7 @@ With this, a developer machine becomes ephemeral, containing no development stat
 
     You are now ready to start developing. `go`, go tool wrappers (`dlv`, `gopls`, `bingo` etc), and standalone go tools will work as intended. All without dependency on the Host system.
 
-## Build more dockerized go tools
+## Build more dockerized go tool wrappers
 
 Let's build a dockerized `golint`
 
@@ -73,7 +74,7 @@ Let's build a dockerized `golint`
 
 2. Run `make`.
 
-## Remove the dockerized go tools
+## Remove the dockerized go tools wrappers
 
 `make all-remove`
 
@@ -86,17 +87,19 @@ We create daemon `go` container, and `bindfs` its `GOROOT` (`/usr/local/go`) ont
 This allows the user to access Go runtime / native files as though it were installed on the Host.
 More importantly, it allows a local debugger (e.g. `dlv`) or go-to-definition tool (e.g. `godef`) to open the necessary Go native files.
 
-### 2. `go`
+### 2. `go` wrapper
 
-For `go`, the `GOPATH` and `GOCACHE` as defined in Makefile are used.
+When called outside of the folder of a git repository, the `GOPATH` is `$HOME/go`, and `GOCACHE` is `$HOME/.cache/go-build`, as defined in Makefile.
 
-### 3. Dockerized Go tools
+When called within the folder of a git repository, the `GOPATH` and `GOCACHE` are `/path/to/repo/.go` and `/path/to/repo/.go/.cache/go-build/`, as defined in the Makefile. Your workspace environment *may* want to define these variables to override the wrapper's defaults just to be sure they are set correctly.
 
-For dockerized go tools( e.g. `dlv`),  a repo `GOPATH` and `GOCACHE` are `/repo/.go` and `/repo/.cache/go-build/`. If these paths do not exist, the default `GOPATH` and `GOCACHE` as defined in Makefile are used.
+### 3. Go tools wrappers
+
+These must be used in the folder of a git repository. The `GOPATH` and `GOCACHE` are `/path/to/repo/.go` and `/path/to/repo/.go/.cache/go-build/`.
 
 ### 4. Standalone Go tools
 
-The binaries will reside in `GOPATH/bin` as defined in Makefile.
+The binaries will still reside in `GOPATH/bin` as defined in Makefile.
 
 ## FAQ
 
@@ -107,7 +110,3 @@ You need to have at least `bindfs-1.13.10` or higher. More information [here](ht
 ### Q: `bindfs` of the Go daemon container's `GOROOT` does not work on Docker for Windows or Docker for Mac?
 
 Yes. The `bindfs` approach only works on Linux at the moment. This is because Docker for Windows/Mac both use a separate VM for the container space, and the host is unable to see the container's files. Read more details [here](https://github.com/moby/moby/issues/26872#issuecomment-249416877)
-
-## Todo
-
-Make go tools that dont require `PWD_GOPATH` and `PWD_GOCACHE` in the `$PWD`
