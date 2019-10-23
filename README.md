@@ -99,7 +99,7 @@ These must be used in the folder of a git repository. The `GOPATH` and `GOCACHE`
 
 ### 4. Standalone Go tools
 
-The binaries will still reside in `GOPATH/bin` as defined in Makefile.
+The binaries will still reside in `$GOPATH/bin` as defined in Makefile.
 
 ## FAQ
 
