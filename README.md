@@ -85,7 +85,7 @@ Let's build a dockerized `golint`
 We create daemon `go` container, and `bindfs` its `GOROOT` (`/usr/local/go`) onto the Host at the same path (`/usr/local/go`). Read more [here](https://github.com/moby/moby/issues/26872#issuecomment-249416877).
 
 This allows the user to access Go runtime / native files as though it were installed on the Host.
-More importantly, it allows a local debugger (e.g. `dlv`) or go-to-definition tool (e.g. `godef`) to open the necessary Go native files.
+More importantly, it allows a local debugger (e.g. `dlv`) or go-to-definition tool (e.g. `gopls` or `godef`) to open the necessary Go native files.
 
 ### 2. `go` wrapper
 
