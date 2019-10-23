@@ -27,7 +27,7 @@ With this, a developer machine becomes ephemeral, containing no development stat
     make
     ```
 
-    E.g. A docker image named `gopls` is built. A wrapper `gopls` is generated in `.bin/`
+    E.g. A docker image named `gopls` is built. A wrapper `gopls` is generated in `./bin`
 
 4. Add this repo's `./bin` to `$PATH`.
 
